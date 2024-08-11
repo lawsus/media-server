@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Server</title>
+    <style>
+        .folder-item, .file-item {
+            margin: 5px 0;
+        }
+        .folder-item a, .file-item a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .folder-item a:hover, .file-item a:hover {
+            text-decoration: underline;
+        }
+        .pagination {
+            margin-top: 20px;
+        }
+        .pagination a {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Media Files</h1>
+    {% if parent is not none %}
+        <a href="{{ url_for('index', subpath=parent) }}">Up to parent directory</a>
+    {% endif %}
+    <h2>Current directory: {{ current_path or 'Root' }}</h2>
+    
+    <h3>Folders:</h3>
+    {% for folder in folders %}
+        <div class="folder-item">
+            <a href="{{ url_for('index', subpath=join_paths(current_path, folder)) }}">📁 {{ folder }}</a>
+        </div>
+    {% endfor %}
+
+    <h3>Files:</h3>
+    {% for file in files %}
+        <div class="file-item">
+            <a href="{{ url_for('view_media', filepath=join_paths(current_path, file)) }}">
+                {% if file.lower().endswith(('.mp4', '.avi', '.mov')) %}
+                    🎥
+                {% else %}
+                    🖼️
+                {% endif %}
+                {{ file }}
+            </a>
+        </div>
+    {% endfor %}
+
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="{{ url_for('index', subpath=current_path, page=page-1) }}">Previous</a>
+        {% endif %}
+        
+        Page {{ page }} of {{ total_pages }}
+        
+        {% if page < total_pages %}
+            <a href="{{ url_for('index', subpath=current_path, page=page+1) }}">Next</a>
+        {% endif %}
+    </div>
+</body>
+</html>

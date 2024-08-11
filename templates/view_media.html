@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ filename }}</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        img, video {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+        .navigation a.disabled {
+            cursor: not-allowed;
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ filename }}</h1>
+    {% if file_type == 'image' %}
+        <img src="{{ url_for('serve_media', filename=filepath) }}" alt="{{ filename }}">
+    {% elif file_type == 'video' %}
+        <video controls>
+            <source src="{{ url_for('serve_media', filename=filepath) }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    {% endif %}
+    <div class="navigation">
+        {% if prev_file %}
+            <a href="{{ url_for('view_media', filepath=join_paths(folder_path, prev_file)) }}">Previous</a>
+        {% else %}
+            <a class="disabled">Previous</a>
+        {% endif %}
+
+        <a href="{{ url_for('index', subpath=folder_path) }}">Back to folder</a>
+
+        {% if next_file %}
+            <a href="{{ url_for('view_media', filepath=join_paths(folder_path, next_file)) }}">Next</a>
+        {% else %}
+            <a class="disabled">Next</a>
+        {% endif %}
+    </div>
+</body>
+</html>
