@@ -21,6 +21,12 @@
         .pagination a {
             margin: 0 5px;
         }
+        .upload-form {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -30,6 +36,15 @@
     {% endif %}
     <h2>Current directory: {{ current_path or 'Root' }}</h2>
     
+    <div class="upload-form">
+        <h3>Upload File</h3>
+        <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".png,.jpg,.jpeg,.gif,.mp4,.avi,.mov">
+            <input type="hidden" name="subpath" value="{{ current_path }}">
+            <input type="submit" value="Upload">
+        </form>
+    </div>
+
     <h3>Folders:</h3>
     {% for folder in folders %}
         <div class="folder-item">
@@ -40,7 +55,7 @@
     <h3>Files:</h3>
     {% for file in files %}
         <div class="file-item">
-            <a href="{{ url_for('view_media', filepath=join_paths(current_path, file)) }}">
+            <a href="{{ url_for('serve_media', filename=join_paths(current_path, file)) }}">
                 {% if file.lower().endswith(('.mp4', '.avi', '.mov')) %}
                     🎥
                 {% else %}

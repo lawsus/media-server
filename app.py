@@ -1,6 +1,7 @@
-from flask import Flask, render_template, send_from_directory, request, abort
+from flask import Flask, render_template, send_from_directory, request, abort, redirect, url_for, abort
 import os
 import ssl
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -8,6 +9,7 @@ app = Flask(__name__)
 MEDIA_FOLDER = 'media file path'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'avi', 'mov'}
 ITEMS_PER_PAGE = 50
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -70,6 +72,25 @@ def view_media(filepath):
                            prev_file=prev_file,
                            next_file=next_file,
                            folder_path=folder_path)
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return redirect(request.referrer)
+    
+    file = request.files['file']
+    if file.filename == '':
+        return redirect(request.referrer)
+    
+    subpath = request.form.get('subpath', '')
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        upload_folder = os.path.join(MEDIA_FOLDER, subpath)
+        if not os.path.exists(upload_folder):
+            return "Invalid upload path", 400
+        file.save(os.path.join(upload_folder, filename))
+    
+    return redirect(url_for('index', subpath=subpath))
 
 @app.route('/media/<path:filename>')
 def serve_media(filename):
